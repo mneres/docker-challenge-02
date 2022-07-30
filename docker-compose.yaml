@@ -1,0 +1,45 @@
+version: '1'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+    image: mneres/nginx-node:prod
+    container_name: nginx
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+
+  app:
+    build:
+      context: ./node # folder where dockerimage is placed
+    container_name: app
+    image: mneres/app-node:prod
+    networks:
+      - node-network
+    volumes:
+      - ./node:/usr/src/app
+    tty: true
+    depends_on:
+      - db # Only start db first but do not garantee that container will wait for db
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js  # Force container to wait for DB
+
+  db:
+    image: mysql:8.0
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+      # - MYSQL_USER=root
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge

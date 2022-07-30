@@ -1,1 +1,4 @@
-# docker-challenge-02
+# Build and Run
+```console
+$ docker-compose up -d --build
+```
