@@ -10,6 +10,8 @@ services:
       - node-network
     ports:
       - "8080:80"
+    depends_on:
+      - app
 
   app:
     build:
@@ -20,6 +22,7 @@ services:
       - node-network
     volumes:
       - ./node:/usr/src/app
+      - /usr/src/app/node_modules
     tty: true
     depends_on:
       - db # Only start db first but do not garantee that container will wait for db
